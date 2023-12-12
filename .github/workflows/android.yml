@@ -48,6 +48,15 @@ jobs:
             -Dbuildtype=release
           ninja -C "build-android" install
           cp /tmp/zink/lib/libOSMesa.so.8.0.0 /tmp/zink/lib/libOSMesa_8.so
+      - name: striping
+        run: |
+          if [ "${{matrix.arch}}" == "arm32" ]; then
+          llvm-strip --strip-all  /tmp/zink/lib/libOSMesa_8.so
+          else if [ "${{matrix.arch}}" == "aarch64" ]; then
+          llvm-strip --strip-all /tmp/zink/lib/libOSMesa_8.so
+          else if [ "${{matrix.arch}}" == "x86_64" ]; then
+          llvm-strip --strip-all /tmp/zink/lib/libOSMesa_8.so
+          fi
       - name: Upload libraries
         uses: actions/upload-artifact@v2
         with:
