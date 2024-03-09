@@ -54,8 +54,8 @@ jobs:
           ninja -C "build-android" install
           cd ..
           envsubst <android-${{matrix.arch}} >build-crossfile
-          git clone --depth 1 https://github.com/Vera-Firefly/panfork_offscreen_rootless
-          cd panfork_offscreen_rootless
+          git clone --depth 1 https://github.com/Vera-Firefly/mesa2304
+          cd mesa2304
           git apply --reject --whitespace=fix ../mesa-zink.diff || echo "git apply failed"
           meson setup "build-android" \
             --prefix=/tmp/zink \
@@ -72,7 +72,8 @@ jobs:
             -Dosmesa=true \
             -Dvulkan-drivers= \
             -Dgallium-drivers=zink,swrast,panfrost \
-            -Dshared-glapi=false
+            -Dshared-glapi=false \
+            -Dbuildtype=release
           ninja -C "build-android" install
           cp /tmp/zink/lib/libOSMesa.so.8.0.0 /tmp/zink/lib/libOSMesa_8.so
       - name: Upload libraries
