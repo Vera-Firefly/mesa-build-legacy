@@ -1,19 +1,6 @@
 name: Build Android
 
 on:
-
-  pull_request:
-
-    branches-ignore:
-
-      - ''
-      
-  push:
-
-    branches-ignore:
-
-      - ''
-
   workflow_dispatch:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -37,11 +24,12 @@ jobs:
           pip3 install mako
           export ANDROID_NDK_HOME="$ANDROID_SDK_ROOT/ndk-bundle"
           envsubst <android-${{matrix.arch}} >build-crossfile
-          git clone --depth 1 --branch 24.0 https://github.com/Vera-Firefly/mesa
+          git clone --depth 1 --branch 24.0.3 https://gitlab.freedesktop.org/mesa/mesa/
+          git clone --depth 1 --branch master https://github.com/Vera-Firefly/mesa-build-fix
+          mv mesa-build-fix/* mesa
           cd mesa
-          git apply --reject --whitespace=fix ../mesa-zink.diff || echo "git apply failed"
           meson setup "build-android" \
-            --prefix=/tmp/zink \
+            --prefix=/tmp/mesa \
             --cross-file "../build-crossfile" \
             -Dplatforms=android \
             -Dplatform-sdk-version=25 \
@@ -59,10 +47,10 @@ jobs:
             -Dandroid-libbacktrace=disabled \
             -Dbuildtype=release
           ninja -C "build-android" install
-          cp /tmp/zink/lib/libOSMesa.so.8.0.0 /tmp/zink/lib/libOSMesa_8.so
+          cp /tmp/mesa/lib/libOSMesa.so.8.0.0 /tmp/mesa/lib/libOSMesa_8.so
       - name: Upload libraries
         uses: actions/upload-artifact@v2
         with:
-          name: libzink_${{matrix.arch}}
-          path: /tmp/zink/lib/libOSMesa_8.so
+          name: libOSMesa_${{matrix.arch}}
+          path: /tmp/mesa/lib/libOSMesa_8.so
 
